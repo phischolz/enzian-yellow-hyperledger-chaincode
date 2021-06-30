@@ -1,3 +1,6 @@
+.idea/
+
+
 # Logs
 logs
 *.log
@@ -102,3 +105,7 @@ dist
 
 # TernJS port file
 .tern-port
+/.idea/enzian-yellow-hyperledger-chaincode.iml
+/.idea/modules.xml
+/.idea/vcs.xml
+/package-lock.json
