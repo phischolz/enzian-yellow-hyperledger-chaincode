@@ -1,10 +1,6 @@
-const {Processes, ProcessesContext} = require('../src/contracts/Processes');
-const { Contract, Context } = require('fabric-contract-api');
+const {ProcessesContext} = require('../src/contracts/Processes');
 const { ChaincodeStub } = require('fabric-shim');
 const sinon = require('sinon');
-
-console.log("NODE_ENV: " + process.env.NODE_ENV);
-
 
 function makeFakeContext(){
 
@@ -19,10 +15,10 @@ function makeFakeContext(){
         chaincodeStub.states[key] = value;
     });
 
-    chaincodeStub.createCompositeKey.callsFake(async (objectType, attributes) => {
+    chaincodeStub.createCompositeKey.callsFake((objectType, attributes) => {
         let key = objectType;
         attributes.forEach(elem => key += ":" + elem);
-        return key;
+        return Promise.resolve(key);
     });
 
     chaincodeStub.getState.callsFake(async (key) => {

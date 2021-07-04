@@ -4,7 +4,8 @@
   "description": "Deployable, separated chaincode package for hyperledger, meant to be accessed and used by enzian-yellow.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test"
+    "test": "mocha test",
+    "start": "fabric-chaincode-node start"
   },
   "repository": {
     "type": "git",

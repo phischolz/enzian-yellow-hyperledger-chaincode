@@ -6,57 +6,31 @@ const {GatewayType, DecisionType, Operator, operatorBySymbol} = require('../cont
 
 class TaskNode extends State {
 
-    id = 0;
-    activity;
-    taskResource;
-    completed = false;
-    precedingMergingGateway;
-    requirements = [];
-    competitors = [];
-    decision = undefined;
 
 
-    /**
-     * Set decision property with {@link setDecision}.
-     * @param parentProcessInstanceID {string}
-     * @param taskID {number}
-     * @param activity {string}
-     * @param taskResource {string}
-     * @param precedingMergingGateway {GatewayType}
-     * @param requirements {Array<number>}
-     * @param competitors {Array<number>}
-     */
-    constructor(
-        parentProcessInstanceID,
-        taskID,
-        activity,
-        taskResource,
-        precedingMergingGateway,
-        requirements,
-        competitors) {
+    constructor(obj) {
+        super(TaskNode.getClass(), [obj.parentProcessInstanceID, 'task:' + obj.id]);
+        Object.assign(this, obj);
 
-
-        super(TaskNode.getClass(), [parentProcessInstanceID, taskID]);
-        this.parentProcessInstanceID = parentProcessInstanceID;
-        this.id = taskID
-        this.activity = activity;
-        this.taskResource = taskResource;
-        this.precedingMergingGateway = precedingMergingGateway;
-        this.requirements = requirements;
-        this.competitors = competitors;
     }
 
     //====================== Getters & Setters ===========================
 
+    async getDecisionEndBoss(){
+        if (this.decision){
+            return this.decision.endBoss;
+        } else return undefined;
+    }
+
     /**
      *
      * @param endBoss {number}
-     * @param gatewayType {GatewayType}
-     * @param decisionType {DecisionType}
+     * @param gatewayType {number}
+     * @param decisionType {number}
      * @param completed {boolean}
      * @param exists {boolean}
-     * @param operator {Operator}
-     * @param processVariable {string} Key to Variable
+     * @param operator {number}
+     * @param processVariable {number} ID of Variable
      * @param value
      * @returns {Promise<void>}
      */
@@ -95,26 +69,27 @@ class TaskNode extends State {
 
     /**
      * Factory method to create a Task object
-     * @param parentProcessInstanceID {string}
+     * @param parentProcessInstanceID {number}
      * @param taskID {number}
      * @param taskName {string}
-     * @param resource {string}
+     * @param taskResource {string}
      * @param competitors {Array<number>}
-     * @param precedingMergingGateway {GatewayType}
+     * @param precedingMergingGateway {number}
      * @param requirements {Array<number>}
      * @returns {TaskNode}
      */
-    static createInstance(parentProcessInstanceID, taskID, taskName, resource, competitors,
+    static createInstance(parentProcessInstanceID, taskID, taskName, taskResource, competitors,
                           precedingMergingGateway, requirements) {
 
-        return new TaskNode(
+        return new TaskNode({
             parentProcessInstanceID,
-            taskID,
-            taskName,
-            resource,
+            id: taskID,
+            name: taskName,
+            taskResource,
             precedingMergingGateway,
             requirements,
-            competitors);
+            competitors,
+        });
     }
 
     static getClass() {

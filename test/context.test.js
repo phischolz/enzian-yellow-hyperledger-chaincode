@@ -1,7 +1,9 @@
 
 const {ProcessesContext} = require('../src/contracts/Processes');
 const ProcessInstanceNode = require('../src/contracts/ProcessInstanceNode');
-const State = require('../src/ledger-api/state')
+const TaskNode = require('../src/contracts/TaskNode');
+const VariableNode = require('../src/contracts/VariableNode');
+const State = require('../src/ledger-api/state');
 
 
 const assert = require('chai').assert
@@ -9,63 +11,92 @@ const sinon = require('sinon');
 const { ChaincodeStub } = require('fabric-shim');
 const makeFakeContext = require('./make-fake-context')
 
-console.log("NODE_ENV: " + process.env.NODE_ENV);
 
+describe('ProcessesContext Testing', async function (){
+    let ctx = makeFakeContext();
 
-describe('ProcessesContext Testing', function (){
-    let testContext = makeFakeContext();
+    describe('Stubbing', async function(){
+        beforeEach(function (){
+            ctx = makeFakeContext();
+        })
 
-    beforeEach(function (){
-        testContext = makeFakeContext();
+        it('Context exists', async function (){
+            assert.exists(ctx);
+            assert.instanceOf(ctx, ProcessesContext)
+        })
+
+        it('Context contains ProcessesNode', async function(){
+            assert.exists(ctx.processesNode)
+        })
+
+        it('Sinon created Stub',async function(){
+            let chaincodeStub = sinon.createStubInstance(ChaincodeStub);
+            assert.exists(chaincodeStub);
+        })
+
+        it('Context has stub',async function(){
+            assert.exists(ctx.stub);
+        })
     })
 
-    it('Context exists', function (){
-        assert.exists(testContext);
-        assert.instanceOf(testContext, ProcessesContext)
+    describe('ProcessesNode', async function(){
+        beforeEach(function (){
+            ctx = makeFakeContext();
+        })
+
+        it('PIDs exist', async function(){
+            let PID = ctx.processesNode.getNextProcessID()
+            assert.exists(PID);
+        })
+
+        it('PID counting', async function(){
+            assert.equal(await ctx.processesNode.getNextProcessID(), 0);
+            assert.equal(await ctx.processesNode.getNextProcessID(), 1);
+            assert.equal(await ctx.processesNode.getNextProcessID(), 2);
+        })
+
+        it('Output signatures', async function(){
+
+            //PROCESS
+            let PID = await ctx.processesNode.getNextProcessID();
+            let process = await ProcessInstanceNode.createInstance(PID);
+            assert.instanceOf(process, ProcessInstanceNode, 'Factory of ProcessInstanceNode didn\'t return ProcessInstance');
+
+            let processKey = await ctx.processesNode.addProcess(process);
+            assert.exists(processKey, 'addProcess didn\'t return String');
+
+
+            process = await ctx.processesNode.getProcess(processKey);
+            assert.instanceOf(process, ProcessInstanceNode, 'getProcess didn\'t return ProcessInstance');
+
+            //TASK
+            let task = await TaskNode.createInstance(process.id, 0, 'name', '',
+                [], undefined, []);
+            assert.instanceOf(task, TaskNode, 'TaskNode Factory didn\'t return TaskNode');
+
+
+            let taskKey = await ctx.processesNode.addTask(processKey, task);
+
+            assert.exists(taskKey, 'addTask didn\'t return Task Key');
+
+            task = await ctx.processesNode.getTask(processKey, task.id);
+            assert.instanceOf(task, TaskNode, 'getTask didn\'t return TaskNode');
+
+            //VARIABLE
+
+            let variable = await VariableNode.createInstance(process.id, 0, 0, 'aloha');
+            assert.instanceOf(variable, VariableNode, 'Variable Factory didn\'t return variable');
+
+            let variableKey = await ctx.processesNode.addVariable(processKey, variable);
+            assert.exists(variableKey, 'addVariable didn\'t return Key');
+
+            variable = await ctx.processesNode.getVariable(processKey, variable.id);
+            assert.instanceOf(variable, VariableNode, 'getVariable didn\'t return variable');
+        })
+
     })
 
-    it('Context contains ProcessesNode', function(){
-        assert.exists(testContext.processesNode)
-    })
-
-    it('Sinon created Stub', function(){
-        let chaincodeStub = sinon.createStubInstance(ChaincodeStub);
-        assert.exists(chaincodeStub);
-    })
-
-    it('Context has stub', function(){
-        assert.exists(testContext.stub);
-    })
-
-    it('Context gets PIDs', async function(){
-        let PID = testContext.processesNode.getNextProcessID()
-        assert.exists(PID);
-    })
-
-    it('Context creates Process', async function(){
-        let PID = await testContext.processesNode.getNextProcessID();
-        assert.exists(PID, "PID was not created");
-
-        let createdProcess = ProcessInstanceNode.createInstance(String(PID));
-        assert.exists(createdProcess, "Process Instance not created");
-
-        let res = await testContext.processesNode.addProcess(createdProcess);
-        assert.exists(res, "addProcess did not return results");
-    })
-
-    it('create process, then get process', async function(){
-        let PID = await testContext.processesNode.getNextProcessID();
-        let createdProcess = ProcessInstanceNode.createInstance(String(PID));
-        let processAddress = await testContext.processesNode.addProcess(createdProcess);
-        let gottenProcess = await testContext.processesNode.getProcess(processAddress);
-
-        assert.exists(gottenProcess, "Object returned by getProcess is empty");
-        assert.instanceOf(gottenProcess, State, "Object returned by getProcess is NOT a State")
-        assert.instanceOf(gottenProcess, ProcessInstanceNode,
-            "State returned by getProcess is NOT ProcessInstanceNode");
-    })
-
-    it('template', function(){
+    it('template', async function(){
 
     })
 })

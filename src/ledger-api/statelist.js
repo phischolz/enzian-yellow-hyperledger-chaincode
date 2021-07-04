@@ -31,10 +31,11 @@ class StateList {
      * State object is serialized before writing.
      */
     async addState(state) {
-        let key = this.ctx.stub.createCompositeKey(this.name, state.getSplitKey());
+        let key = await this.ctx.stub.createCompositeKey(this.name, state.getSplitKey());
+        let tempStateKey= state.getKey();
         let data = State.serialize(state);
         await this.ctx.stub.putState(key, data);
-        return key;
+        return tempStateKey
     }
 
     /**
@@ -45,8 +46,9 @@ class StateList {
      * @returns {Promise<State|null>}
      */
     async getState(key) {
-        let ledgerKey = this.ctx.stub.createCompositeKey(this.name, State.splitKey(key));
+        let ledgerKey = await this.ctx.stub.createCompositeKey(this.name, State.splitKey(key));
         let data = await this.ctx.stub.getState(ledgerKey);
+
         if (data && data.toString('utf8')) {
             return State.deserialize(data, this.supportedClasses);
         } else {
@@ -61,7 +63,7 @@ class StateList {
      * addState() but kept separate because it is semantically distinct.
      */
     async updateState(state) {
-        let key = this.ctx.stub.createCompositeKey(this.name, state.getSplitKey());
+        let key = await this.ctx.stub.createCompositeKey(this.name, state.getSplitKey());
         let data = State.serialize(state);
         await this.ctx.stub.putState(key, data);
     }

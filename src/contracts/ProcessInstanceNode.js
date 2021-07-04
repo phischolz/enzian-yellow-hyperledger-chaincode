@@ -8,17 +8,20 @@ class ProcessInstanceNode extends State {
     variables = {}; //ID-Key Pairs
     tasks = {}; //ID-Key Pairs
 
-    /**
-     *
-     * @param processInstanceID {number}
-     */
-    constructor(processInstanceID) {
-        super(ProcessInstanceNode.getClass(), [processInstanceID]);
-        this.id = processInstanceID;
+
+    constructor(obj) {
+        super(ProcessInstanceNode.getClass(), [obj.id]);
+        Object.assign(this, obj);
     }
 
     //====================== Getters & Setters ===========================
 
+    /**
+     * Adds deployed task to internal register. Throws, if ID already in use.
+     * @param taskID {number}
+     * @param taskKey {string}
+     * @returns {Promise<void>}
+     */
     async addTask(taskID, taskKey){
         if (this.tasks[taskID]){
             throw new Error('this taskID is already in use!');
@@ -28,19 +31,68 @@ class ProcessInstanceNode extends State {
 
     }
 
+    /**
+     *
+     * @param taskID {number}
+     * @returns {Promise<string>}
+     */
     async getTaskKey(taskID){
         return this.tasks[taskID];
     }
 
-    getTasks(){
+    /**
+     *
+     * @returns {Promise<{}>} Internal task register.
+     */
+    async getTasks(){
         return this.tasks;
     }
 
-    getEventLog(){
+    /**
+     * Adds deployed variable to internal register. Throws, if ID already in use.
+     * @param varID {number}
+     * @param varKey {string}
+     * @returns {Promise<void>}
+     */
+    async addVariable(varID, varKey){
+        if (this.variables[varID]) {
+            throw new Error('varID already in use!');
+        } else {
+            this.variables[varID] = varKey;
+        }
+    }
+
+    /**
+     *
+     * @param varID {number}
+     * @returns {Promise<string>}
+     */
+    async getVariableKey(varID){
+        return this.variables[varID];
+    }
+
+    /**
+     *
+     * @returns {Promise<{}>} Internal variables register.
+     */
+    async getVariables() {
+        return this.variables;
+    }
+
+    /**
+     * Returns order of executed tasks.
+     * @returns {Promise<*[]>}
+     */
+    async getEventLog(){
         return this.eventLog;
     }
 
-    addEvent(taskID){
+    /**
+     * Appends TaskID to internal event log.
+     * @param taskID {number}
+     * @returns {Promise<void>}
+     */
+    async addEvent(taskID){
         this.eventLog.append(taskID)
     }
 
@@ -56,9 +108,10 @@ class ProcessInstanceNode extends State {
 
     /**
      * Factory method to create a commercial paper object
+     * @param processInstanceID {number}
      */
     static createInstance(processInstanceID) {
-        return new ProcessInstanceNode({ processInstanceID });
+        return new ProcessInstanceNode({id: processInstanceID});
     }
 
     static getClass() {

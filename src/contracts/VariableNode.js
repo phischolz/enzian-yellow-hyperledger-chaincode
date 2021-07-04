@@ -4,28 +4,48 @@ const State = require('../ledger-api/state')
 
 class VariableNode extends State {
 
+
     constructor(obj) {
-        super(VariableNode.getClass(), [obj.parentProcessInstanceID, obj.variableName]);
-        Object.assign(this, obj);
-        this.valueLog = [];
-        this.valueLog.append(obj.variableValue);
+        super(VariableNode.getClass(), [obj.parentProcessInstanceID, 'var:' + obj.variableID]);
+        if(obj.initialValue === 0 || obj.initialValue === "" || obj.initialValue) {
+            this.valueLog = [obj.initialValue];
+            this.variableValue = obj.initialValue;
+        }
+
     }
 
     //====================== Getters & Setters ===========================
 
-    getValue(){
+    /**
+     *
+     * @returns {Promise<string|number>}
+     */
+    async getValue(){
         return this.variableValue;
     }
 
-    setValue(value){
+    /**
+     *
+     * @param value {string|number}
+     * @returns {Promise<void>}
+     */
+    async setValue(value){
         this.variableValue = value;
         this.valueLog.append(value);
     }
 
+    /**
+     *
+     * @returns {Array<number|string>}
+     */
     getValueLog(){
         return this.valueLog;
     }
 
+    /**
+     *
+     * @returns {string}
+     */
     getName(){
         return this.variableName;
     }
@@ -50,11 +70,16 @@ class VariableNode extends State {
     }
 
     /**
-     * Factory method to create a commercial paper object
+     * Factory method
+     * @param {number} parentProcessInstanceID
+     * @param {number} variableID
+     * @param {string|number} [initialValue]
+     * @param {string} [variableName]
+     * @returns {VariableNode}
      */
-    static createInstance(parentProcessInstanceID, variableName, variableValue) {
+    static createInstance(parentProcessInstanceID, variableID, initialValue, variableName) {
 
-        return new VariableNode({ parentProcessInstanceID, variableName, variableValue});
+        return new VariableNode({parentProcessInstanceID, variableID, initialValue, variableName});
     }
 
     static getClass() {
