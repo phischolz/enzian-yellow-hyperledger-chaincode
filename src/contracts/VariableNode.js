@@ -6,10 +6,11 @@ class VariableNode extends State {
 
 
     constructor(obj) {
-        super(VariableNode.getClass(), [obj.parentProcessInstanceID, 'var:' + obj.variableID]);
-        if(obj.initialValue === 0 || obj.initialValue === "" || obj.initialValue) {
-            this.valueLog = [obj.initialValue];
-            this.variableValue = obj.initialValue;
+        super(VariableNode.getClass(), [obj.parentProcessInstanceID, 'var:' + obj.id]);
+        Object.assign(this, obj);
+        if(!obj.valueLog) {
+            this.valueLog = [];
+            if(obj.variableValue===0 || obj.variableValue==='' || obj.variableValue) this.valueLog.push(obj.variableValue);
         }
 
     }
@@ -31,7 +32,7 @@ class VariableNode extends State {
      */
     async setValue(value){
         this.variableValue = value;
-        this.valueLog.append(value);
+        this.valueLog.push(value);
     }
 
     /**
@@ -73,13 +74,12 @@ class VariableNode extends State {
      * Factory method
      * @param {number} parentProcessInstanceID
      * @param {number} variableID
-     * @param {string|number} [initialValue]
+     * @param {string|number} [variableValue]
      * @param {string} [variableName]
      * @returns {VariableNode}
      */
-    static createInstance(parentProcessInstanceID, variableID, initialValue, variableName) {
-
-        return new VariableNode({parentProcessInstanceID, variableID, initialValue, variableName});
+    static createInstance(parentProcessInstanceID, variableID, variableValue, variableName) {
+        return new VariableNode({parentProcessInstanceID, id: variableID, variableValue, variableName});
     }
 
     static getClass() {

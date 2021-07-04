@@ -32,6 +32,7 @@ class StateList {
      */
     async addState(state) {
         let key = await this.ctx.stub.createCompositeKey(this.name, state.getSplitKey());
+        //console.log('WRITING TO: ', key);
         let tempStateKey= state.getKey();
         let data = State.serialize(state);
         await this.ctx.stub.putState(key, data);
@@ -47,6 +48,7 @@ class StateList {
      */
     async getState(key) {
         let ledgerKey = await this.ctx.stub.createCompositeKey(this.name, State.splitKey(key));
+        //console.log('GETTING FROM: ', ledgerKey);
         let data = await this.ctx.stub.getState(ledgerKey);
 
         if (data && data.toString('utf8')) {

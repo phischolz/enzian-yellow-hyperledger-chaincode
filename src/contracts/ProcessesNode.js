@@ -140,7 +140,7 @@ class ProcessesNode extends StateList {
         // resource is ignored, since auth is native in hyperledger (?) TODO
 
         //let endBoss = 0;
-        if(task.decision.exists){
+        if(task.decision){
             //endBoss = task.decision.endBoss;
             let result = this.evaluateTaskDecision(parentProcessInstanceKey, task);
             if(!result) throw new Error('Process Variable is not correct.')
@@ -156,6 +156,7 @@ class ProcessesNode extends StateList {
                 if (parentProcess.eventLog.find(element => element === requiredTaskIDs[i]))
                     numFulfilledRequirements++;
             }
+            console.log('')
 
             //TODO Is this sufficient? Something seemed to be missing in solidity. ctrl+f "enabled"
             let gateway = task.precedingMergingGateway;
@@ -169,7 +170,7 @@ class ProcessesNode extends StateList {
         }
 
         if(success){
-            if(task.decision.exists) {
+            if(task.decision) {
                 //lock all competing tasks!
                 for (let i = 0; i < task.competitors.length; i++){
                     let competingTask = await this.getTask(parentProcessInstanceKey, task.competitors[i]);
@@ -177,10 +178,13 @@ class ProcessesNode extends StateList {
                     await this.updateTask(parentProcessInstanceKey, competingTask);
                 }
 
-                await parentProcess.addEvent(task.id);
-                task.completed = true;
+
             }
+            await parentProcess.addEvent(task.id);
         }
+        task.completed = success;
+        await this.updateTask(parentProcessInstanceKey, task);
+        await this.updateProcess(parentProcess);
 
         return success;
     }

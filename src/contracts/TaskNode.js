@@ -1,7 +1,6 @@
 'use strict';
 
 const State = require('../ledger-api/state')
-const {GatewayType, DecisionType, Operator, operatorBySymbol} = require('../contract-consts')
 
 
 class TaskNode extends State {
@@ -11,7 +10,7 @@ class TaskNode extends State {
     constructor(obj) {
         super(TaskNode.getClass(), [obj.parentProcessInstanceID, 'task:' + obj.id]);
         Object.assign(this, obj);
-
+        if (!obj.completed) this.completed = false;
     }
 
     //====================== Getters & Setters ===========================

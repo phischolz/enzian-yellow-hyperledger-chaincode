@@ -4,14 +4,17 @@ const State = require('../ledger-api/state')
 
 class ProcessInstanceNode extends State {
 
-    eventLog = []; //IDs
-    variables = {}; //ID-Key Pairs
-    tasks = {}; //ID-Key Pairs
+
+
+
 
 
     constructor(obj) {
         super(ProcessInstanceNode.getClass(), [obj.id]);
         Object.assign(this, obj);
+        if(!obj.eventLog) this.eventLog = []; //IDs
+        if(!obj.variables) this.variables = {}; //ID-Key Pairs
+        if(!obj.tasks) this.tasks = {}; //ID-Key Pairs
     }
 
     //====================== Getters & Setters ===========================
@@ -93,7 +96,7 @@ class ProcessInstanceNode extends State {
      * @returns {Promise<void>}
      */
     async addEvent(taskID){
-        this.eventLog.append(taskID)
+        this.eventLog.push(taskID);
     }
 
     //====================== Statics & Utils ===========================

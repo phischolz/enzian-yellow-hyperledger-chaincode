@@ -3,7 +3,6 @@ const ProcessesNode = require('./ProcessesNode');
 const ProcessInstanceNode = require('./ProcessInstanceNode');
 const TaskNode = require('./TaskNode');
 const VariableNode = require('./VariableNode');
-const {GatewayType, DecisionType, Operator, operatorBySymbol} = require('../contract-consts');
 
 class ProcessesContext extends Context{
 
@@ -58,9 +57,9 @@ class Processes extends Contract {
      * @param {number} taskID
      * @param {string} taskName
      * @param {string} resource
-     * @param {string} competitors
+     * @param {string} competitors JSON-serialized array of numbers
      * @param {number} precedingMergingGateway ID, as defined in contract-consts
-     * @param {string} requirements
+     * @param {string} requirements JSON-serialized array of numbers
      * @param {string} [decision] JSON: Dict, see code for key definition
      */
     async createTask(ctx, parentProcessKey, taskID, taskName, resource, competitors,
@@ -155,8 +154,8 @@ class Processes extends Contract {
      */
     async setVariableValue(ctx, processInstanceKey, variableInstanceID, value){
         let variable = await ctx.processesNode.getVariable(processInstanceKey, variableInstanceID);
-        await variable.setValue(value)
-        return await ctx.processesNode.updateVariable(processInstanceKey, variable);
+        await variable.setValue(value);
+        await ctx.processesNode.updateVariable(processInstanceKey, variable);
     }
 
     /**
