@@ -3,7 +3,6 @@ const {ProcessesContext} = require('../src/contracts/Processes');
 const ProcessInstanceNode = require('../src/contracts/ProcessInstanceNode');
 const TaskNode = require('../src/contracts/TaskNode');
 const VariableNode = require('../src/contracts/VariableNode');
-const State = require('../src/ledger-api/state');
 
 
 const assert = require('chai').assert

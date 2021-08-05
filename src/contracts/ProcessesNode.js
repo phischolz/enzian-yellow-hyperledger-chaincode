@@ -4,6 +4,7 @@ const StateList = require('../ledger-api/statelist')
 const ProcessInstanceNode = require('./ProcessInstanceNode')
 const TaskNode = require('./TaskNode')
 const VariableNode = require('./VariableNode')
+const ProcessCounter = require(('./ProcessCounter'))
 const {GatewayType, Operator} = require('../contract-consts')
 
 class ProcessesNode extends StateList {
@@ -13,7 +14,7 @@ class ProcessesNode extends StateList {
         this.use(ProcessInstanceNode);
         this.use(TaskNode);
         this.use(VariableNode)
-        this.nextProcessID = 0;
+        this.use(ProcessCounter)
     }
 
     //===========================================
@@ -25,8 +26,15 @@ class ProcessesNode extends StateList {
      * @returns {Promise<number>}
      */
     async getNextProcessID(){
-        this.nextProcessID +=1;
-        return this.nextProcessID - 1;
+        let counter = await this.getState("ProcessCounter");
+        if(!counter || !(counter instanceof ProcessCounter)){
+            counter = ProcessCounter.createInstance();
+        }
+
+        let retID = await counter.getCurrentCounter();
+        await counter.incrementCounter();
+        await this.updateState(counter);
+        return retID;
     }
 
     /**

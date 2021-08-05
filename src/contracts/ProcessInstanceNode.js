@@ -19,6 +19,7 @@ class ProcessInstanceNode extends State {
 
     //====================== Getters & Setters ===========================
 
+
     /**
      * Adds deployed task to internal register. Throws, if ID already in use.
      * @param taskID {number}
